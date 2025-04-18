@@ -1,7 +1,5 @@
 pipeline {
-    agent {
-        docker { image 'docker:latest' }
-    }
+    agent any
 
     stages {
         stage('Checkout') {
@@ -9,7 +7,7 @@ pipeline {
                 checkout scm
             }
         }
-        
+
         stage('Test') {
             steps {
                 sh 'npm install -g htmlhint || true'
@@ -19,6 +17,7 @@ pipeline {
 
         stage('Build Image') {
             steps {
+                sh 'docker --version' // Check if docker is available
                 sh 'docker build -t coffee-website .'
             }
         }
