@@ -9,6 +9,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
+                // Checkout the repository code
                 checkout scm
             }
         }
@@ -33,7 +34,7 @@ pipeline {
                     
                     // Build Docker image
                     echo "Building Docker image: $IMAGE_NAME"
-                    sh 'docker build -t $IMAGE_NAME .'
+                    sh "docker build -t $IMAGE_NAME ."
                 }
             }
         }
@@ -66,6 +67,7 @@ pipeline {
 
     post {
         always {
+            // Clean up workspace after build, regardless of success or failure
             echo "Cleaning up the workspace..."
             cleanWs()
         }
