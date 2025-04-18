@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     stages {
-        stage('Clone') {
+        stage('Checkout') {
             steps {
-                git 'https://github.com/gargikshirsagar/coffee-website.git'
+                checkout scm  // This checks out the code from the repository configured in Jenkins
             }
         }
 
