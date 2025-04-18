@@ -1,13 +1,15 @@
 pipeline {
-    agent any
+    agent {
+        docker { image 'docker:latest' }
+    }
 
     stages {
         stage('Checkout') {
             steps {
-                checkout scm  // This checks out the code from the repository configured in Jenkins
+                checkout scm
             }
         }
-
+        
         stage('Test') {
             steps {
                 sh 'npm install -g htmlhint || true'
