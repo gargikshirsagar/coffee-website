@@ -48,18 +48,31 @@ pipeline {
         }
 
         stage('CT') {
-    steps {
-        sh '''
-            htmlhint "**/*.html" || true
-            stylelint "**/*.css" --fix || true
-        '''
+            steps {
+                sh '''
+                    echo "👉 Running HTML & CSS Lint Check..."
+
+                    # Install necessary linters if not already installed
+                    npm install -g htmlhint stylelint stylelint-config-standard
+
+                    # Use a basic config for stylelint if missing
+                    echo '{ "extends": "stylelint-config-standard" }' > .stylelintrc.json
+
+                    # Lint HTML (non-breaking)
+                    htmlhint "**/*.html" || true
+
+                    # Lint CSS and auto-fix (non-breaking)
+                    stylelint "**/*.css" --fix || true
+
+                    echo "✅ Done. CT stage completed successfully."
+                '''
+            }
         }
     }
 
-
     post {
         always {
-            cleanWs()
+            cleanWs() // Clean workspace after execution
         }
     }
 }
