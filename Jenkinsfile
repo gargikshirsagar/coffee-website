@@ -37,13 +37,37 @@ pipeline {
         stage('Deploy Docker Container') {
             steps {
                 script {
-                    // Optional: gracefully stop existing container
                     sh "docker stop \$(docker ps -q --filter ancestor=${DOCKER_HUB_REPO}:${IMAGE_TAG}) || true"
                     sh "docker rm \$(docker ps -a -q --filter ancestor=${DOCKER_HUB_REPO}:${IMAGE_TAG}) || true"
-
-                    // Run new container
                     sh "docker run -d -p 8082:80 ${DOCKER_HUB_REPO}:${IMAGE_TAG}"
                 }
+            }
+        }
+
+        stage('Lint HTML') {
+            steps {
+                sh 'npm install -g htmlhint'
+                sh 'htmlhint ./*.html'
+            }
+        }
+
+        stage('Lint CSS') {
+            steps {
+                sh 'npm install -g stylelint'
+                sh 'stylelint "styles/**/*.css"'
+            }
+        }
+
+        stage('Test Website Accessibility') {
+            steps {
+                sh 'curl -I http://localhost:8082'  // Test if the site is accessible
+            }
+        }
+
+        stage('Check for Broken Links') {
+            steps {
+                sh 'npm install -g linkinator'  // Install linkinator globally
+                sh 'linkinator http://localhost:8082'  // Check for broken links
             }
         }
     }
