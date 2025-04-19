@@ -1,46 +1,64 @@
 pipeline {
     agent any
-    
+
     environment {
-        DOCKER_IMAGE = 'coffee-website'
+        DOCKER_HUB_REPO = 'gargimk/coffee-website'  // Docker Hub repository
+        GIT_REPO = 'https://github.com/gargikshirsagar/coffee-website.git'  // GitHub repository
+        IMAGE_NAME = 'coffee-website'  // Docker image name
+        IMAGE_TAG = 'latest'  // Docker image tag
     }
-    
+
     stages {
-        stage('Clone') {
+        // Clone GitHub repository
+        stage('Clone Repository') {
             steps {
-                git 'https://github.com/gargikshirsagar/coffee-website.git'
+                git branch: 'main', url: "${GIT_REPO}"  // Clone the repository
             }
         }
-        
+
+        // Build Docker image
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build the Docker image
-                    sh 'docker build -t $DOCKER_IMAGE .'
+                    // Building the Docker image
+                    sh 'docker build -t ${DOCKER_HUB_REPO}:${IMAGE_TAG} .'  // Replace with your Docker Hub repo
                 }
             }
         }
 
-        stage('Run Tests') {
-            steps {
-                // You can add any tests here, for now, it's skipped
-                echo 'Running tests (if any)...'
-            }
-        }
-
-        stage('Deploy to Docker') {
+        // Push Docker image to Docker Hub
+        stage('Push Docker Image') {
             steps {
                 script {
-                    // Run the Docker container
-                    sh 'docker run -d -p 8082:80 $DOCKER_IMAGE'
+                    // Login to Docker Hub
+                    sh 'docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}'  // Replace with your Docker Hub credentials
+
+                    // Push Docker image to Docker Hub
+                    sh 'docker push ${DOCKER_HUB_REPO}:${IMAGE_TAG}'
                 }
             }
         }
 
-        stage('Notify') {
+        // Deploy Docker container
+        stage('Deploy Docker Container') {
             steps {
-                echo 'Deployment completed successfully.'
+                script {
+                    // Stop any running containers of the same image
+                    sh 'docker stop $(docker ps -q --filter ancestor=${DOCKER_HUB_REPO}:${IMAGE_TAG})'
+
+                    // Remove any old containers
+                    sh 'docker rm $(docker ps -a -q --filter ancestor=${DOCKER_HUB_REPO}:${IMAGE_TAG})'
+
+                    // Run new container
+                    sh 'docker run -d -p 8082:80 ${DOCKER_HUB_REPO}:${IMAGE_TAG}'  // Adjust port as per your needs
+                }
             }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()  // Clean workspace after build
         }
     }
 }
