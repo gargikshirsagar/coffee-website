@@ -44,15 +44,17 @@ pipeline {
             }
         }
 
-        stage('Install curl') {
+        stage('Lint HTML') {
             steps {
-                sh 'sudo apt-get update && sudo apt-get install -y curl'
+                sh 'npm install -g htmlhint'
+                sh 'htmlhint ./*.html'
             }
         }
 
-        stage('Test Website Accessibility') {
+        stage('Lint CSS') {
             steps {
-                sh 'curl -I http://localhost:8084'  // Test if the site is accessible
+                sh 'npm install -g stylelint'
+                sh 'stylelint "styles/**/*.css"'
             }
         }
 
