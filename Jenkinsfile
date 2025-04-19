@@ -34,11 +34,11 @@ pipeline {
             }
         }
 
-        stage('Release Port 8083') {
+        stage('Release Port 8084') {
             steps {
                 script {
-                    // Check and kill the process using port 8083
-                    sh 'fuser -k 8083/tcp || true'
+                    // Kill process using port 8084 if any
+                    sh 'fuser -k 8084/tcp || true'
                 }
             }
         }
@@ -46,10 +46,10 @@ pipeline {
         stage('Deploy Docker Container') {
             steps {
                 script {
-                    // Stop and remove any existing container using the same image
+                    // Stop and remove any existing containers using the image
                     sh "docker stop \$(docker ps -q --filter ancestor=${DOCKER_HUB_REPO}:${IMAGE_TAG}) || true"
                     sh "docker rm \$(docker ps -a -q --filter ancestor=${DOCKER_HUB_REPO}:${IMAGE_TAG}) || true"
-                    // Run the new container on port 8084
+                    // Run the container and bind to a dynamic port
                     sh "docker run -d -p 8084:80 ${DOCKER_HUB_REPO}:${IMAGE_TAG}"
                 }
             }
@@ -67,7 +67,7 @@ pipeline {
         stage('Test Website Accessibility') {
             steps {
                 script {
-                    // Test the website on port 8084
+                    // Test if the site is accessible on port 8084
                     sh 'curl -I http://localhost:8084'
                 }
             }
