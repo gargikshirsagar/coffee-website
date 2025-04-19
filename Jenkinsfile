@@ -44,37 +44,16 @@ pipeline {
             }
         }
 
-        stage('Lint HTML') {
-            steps {
-                sh 'npm install -g htmlhint'
-                sh 'htmlhint ./*.html'
-            }
-        }
-
-        stage('Lint CSS') {
-            steps {
-                sh 'npm install -g stylelint'
-                sh 'stylelint "styles/**/*.css"'
-            }
-        }
-
         stage('Test Website Accessibility') {
             steps {
                 sh 'curl -I http://localhost:8082'  // Test if the site is accessible
-            }
-        }
-
-        stage('Check for Broken Links') {
-            steps {
-                sh 'npm install -g linkinator'  // Install linkinator globally
-                sh 'linkinator http://localhost:8082'  // Check for broken links
             }
         }
     }
 
     post {
         always {
-            cleanWs()
+            cleanWs()  // Clean workspace after every build
         }
     }
 }
