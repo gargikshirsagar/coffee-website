@@ -56,7 +56,7 @@ pipeline {
 
         stage('Lint CSS') {
             steps {
-                sh 'npm install -g stylelint'
+                sh 'npm install -g stylelint stylelint-config-standard'
                 sh 'stylelint "**/*.css"'
             }
         }
