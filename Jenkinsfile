@@ -40,6 +40,9 @@ pipeline {
                     sh "docker stop \$(docker ps -q --filter ancestor=${DOCKER_HUB_REPO}:${IMAGE_TAG}) || true"
                     sh "docker rm \$(docker ps -a -q --filter ancestor=${DOCKER_HUB_REPO}:${IMAGE_TAG}) || true"
                     sh "docker run -d -p 8084:80 ${DOCKER_HUB_REPO}:${IMAGE_TAG}"
+                    
+                    // Wait for the server to be up
+                    sleep(10)  // This waits for 10 seconds before proceeding
                 }
             }
         }
