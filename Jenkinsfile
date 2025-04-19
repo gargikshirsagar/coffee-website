@@ -49,8 +49,17 @@ pipeline {
                     // Stop and remove any existing container using the same image
                     sh "docker stop \$(docker ps -q --filter ancestor=${DOCKER_HUB_REPO}:${IMAGE_TAG}) || true"
                     sh "docker rm \$(docker ps -a -q --filter ancestor=${DOCKER_HUB_REPO}:${IMAGE_TAG}) || true"
-                    // Run the new container on port 8084 to avoid conflicts
+                    // Run the new container on port 8084
                     sh "docker run -d -p 8084:80 ${DOCKER_HUB_REPO}:${IMAGE_TAG}"
+                }
+            }
+        }
+
+        stage('Wait for Container to Start') {
+            steps {
+                script {
+                    // Wait for 15 seconds to ensure the container is fully up and running
+                    sleep(15)
                 }
             }
         }
@@ -58,8 +67,8 @@ pipeline {
         stage('Test Website Accessibility') {
             steps {
                 script {
-                    sleep(10)  // Wait for 10 seconds to ensure the container is fully up
-                    sh 'curl -I http://localhost:8084'  // Test if the site is accessible on port 8084
+                    // Test the website on port 8084
+                    sh 'curl -I http://localhost:8084'
                 }
             }
         }
@@ -67,7 +76,7 @@ pipeline {
         stage('Check for Broken Links') {
             steps {
                 sh 'npm install -g linkinator'  // Install linkinator globally
-                sh 'linkinator http://localhost:8084'  // Check for broken links on the new port
+                sh 'linkinator http://localhost:8084'  // Check for broken links
             }
         }
     }
