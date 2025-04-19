@@ -34,6 +34,15 @@ pipeline {
             }
         }
 
+        stage('Release Port 8082') {
+            steps {
+                script {
+                    // Check and kill the process using port 8082
+                    sh 'fuser -k 8082/tcp || true'
+                }
+            }
+        }
+
         stage('Deploy Docker Container') {
             steps {
                 script {
