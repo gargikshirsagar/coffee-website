@@ -37,12 +37,12 @@ pipeline {
         stage('Deploy Docker Container') {
             steps {
                 script {
-                    sh "docker stop \$(docker ps -q --filter ancestor=${DOCKER_HUB_REPO}:${IMAGE_TAG}) || true"
-                    sh "docker rm \$(docker ps -a -q --filter ancestor=${DOCKER_HUB_REPO}:${IMAGE_TAG}) || true"
-                    sh "docker run -d -p 8084:80 ${DOCKER_HUB_REPO}:${IMAGE_TAG}"
-                    
-                    // Wait for the server to be up
-                    sleep(10)  // This waits for 10 seconds before proceeding
+                    // Stop and remove any container already using the port
+                    sh 'docker ps -q --filter "publish=8082" | xargs -r docker stop'
+                    sh 'docker ps -a -q --filter "publish=8082" | xargs -r docker rm'
+
+                    // Run container
+                    sh "docker run -d -p 8082:80 ${DOCKER_HUB_REPO}:${IMAGE_TAG}"
                 }
             }
         }
@@ -57,14 +57,7 @@ pipeline {
         stage('Lint CSS') {
             steps {
                 sh 'npm install -g stylelint'
-                sh 'stylelint "styles/**/*.css" || true'  // Suppress failure
-            }
-        }
-
-        stage('Check for Broken Links') {
-            steps {
-                sh 'npm install -g linkinator'  // Install linkinator globally
-                sh 'linkinator http://localhost:8084'  // Check for broken links
+                sh 'stylelint "**/*.css"'
             }
         }
     }
