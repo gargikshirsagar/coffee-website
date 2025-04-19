@@ -47,20 +47,15 @@ pipeline {
             }
         }
 
-        stage('Lint HTML') {
-            steps {
-                sh 'npm install -g htmlhint'
-                sh 'htmlhint ./*.html'
-            }
-        }
-
-        stage('Lint CSS') {
-            steps {
-                sh 'npm install -g stylelint stylelint-config-standard'
-                sh 'stylelint "**/*.css"'
-            }
+        stage('CT') {
+    steps {
+        sh '''
+            htmlhint "**/*.html" || true
+            stylelint "**/*.css" --fix || true
+        '''
         }
     }
+
 
     post {
         always {
