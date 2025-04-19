@@ -34,42 +34,25 @@ pipeline {
             }
         }
 
-        stage('Release Port 8084') {
-            steps {
-                script {
-                    // Kill process using port 8084 if any
-                    sh 'fuser -k 8084/tcp || true'
-                }
-            }
-        }
-
         stage('Deploy Docker Container') {
             steps {
                 script {
-                    // Stop and remove any existing containers using the image
                     sh "docker stop \$(docker ps -q --filter ancestor=${DOCKER_HUB_REPO}:${IMAGE_TAG}) || true"
                     sh "docker rm \$(docker ps -a -q --filter ancestor=${DOCKER_HUB_REPO}:${IMAGE_TAG}) || true"
-                    // Run the container and bind to a dynamic port
                     sh "docker run -d -p 8084:80 ${DOCKER_HUB_REPO}:${IMAGE_TAG}"
                 }
             }
         }
 
-        stage('Wait for Container to Start') {
+        stage('Install curl') {
             steps {
-                script {
-                    // Wait for 15 seconds to ensure the container is fully up and running
-                    sleep(15)
-                }
+                sh 'sudo apt-get update && sudo apt-get install -y curl'
             }
         }
 
         stage('Test Website Accessibility') {
             steps {
-                script {
-                    // Test if the site is accessible on port 8084
-                    sh 'curl -I http://localhost:8084'
-                }
+                sh 'curl -I http://localhost:8084'  // Test if the site is accessible
             }
         }
 
