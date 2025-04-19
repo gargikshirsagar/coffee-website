@@ -46,14 +46,24 @@ pipeline {
 
         stage('Test Website Accessibility') {
             steps {
-                sh 'curl -I http://localhost:8082'  // Test if the site is accessible
+                script {
+                    sleep(10)  // Wait for 10 seconds to ensure the container is fully up
+                    sh 'curl -I http://localhost:8082'  // Test if the site is accessible
+                }
+            }
+        }
+
+        stage('Check for Broken Links') {
+            steps {
+                sh 'npm install -g linkinator'  // Install linkinator globally
+                sh 'linkinator http://localhost:8082'  // Check for broken links
             }
         }
     }
 
     post {
         always {
-            cleanWs()  // Clean workspace after every build
+            cleanWs()
         }
     }
 }
