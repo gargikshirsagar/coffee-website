@@ -1,6 +1,6 @@
 # ☕ Coffee Website
 
-A simple front-end coffee website deployed using Docker and CI/CD pipeline via Jenkins.
+This is a front-end Coffee Website designed to display coffee products and engage users. It demonstrates static web hosting through Docker, with automated deployment via Jenkins CI/CD.
 
 ## 🔧 Tech Stack
 - HTML, CSS
