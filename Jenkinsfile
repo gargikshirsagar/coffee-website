@@ -59,10 +59,10 @@ pipeline {
                     echo '{ "extends": "stylelint-config-standard" }' > .stylelintrc.json
 
                     # Lint HTML (non-breaking)
-                    htmlhint "**/*.html" || true
+                    htmlhint "**/*.html" 
 
                     # Lint CSS and auto-fix (non-breaking)
-                    stylelint "**/*.css" --fix || true
+                    stylelint "**/*.css" --fix 
 
                     echo "✅ Done. CT stage completed successfully."
                 '''
